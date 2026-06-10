@@ -31,10 +31,26 @@ func percent(done, target float64) float64 {
 }
 
 func IsGoalMet(goal model.Goal, summary Summary) bool {
-	progress := GoalProgress(goal, summary)
-	return progress["sessions_percent"] >= 100 &&
-		progress["minutes_percent"] >= 100 &&
-		progress["calories_percent"] >= 100
+	hasTarget := false
+	if goal.WeeklySessions > 0 {
+		hasTarget = true
+		if percent(float64(summary.Count), float64(goal.WeeklySessions)) < 100 {
+			return false
+		}
+	}
+	if goal.WeeklyMinutes > 0 {
+		hasTarget = true
+		if percent(float64(summary.TotalDuration), float64(goal.WeeklyMinutes)) < 100 {
+			return false
+		}
+	}
+	if goal.WeeklyCalories > 0 {
+		hasTarget = true
+		if percent(summary.TotalCalories, goal.WeeklyCalories) < 100 {
+			return false
+		}
+	}
+	return hasTarget
 }
 
 func findGoalForWeek(goals []model.Goal, weekMonday time.Time) (model.Goal, bool) {
