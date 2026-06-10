@@ -1,0 +1,30 @@
+name: fitnessapi
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: fitnessapi-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - fitnessapi-db-data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  backend:
+    build:
+      context: ./backend
+    container_name: fitnessapi-backend
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "19409:8080"
+volumes:
+  fitnessapi-db-data:
