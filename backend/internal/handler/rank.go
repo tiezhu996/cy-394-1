@@ -13,12 +13,12 @@ import (
 )
 
 type RankHandler struct {
-	recordSvc service.RecordService
-	goalSvc   service.GoalService
-	userRepo  repository.UserRepository
+	recordSvc RecordService
+	goalSvc   GoalService
+	userRepo  UserRepository
 }
 
-func NewRankHandler(recordSvc service.RecordService, goalSvc service.GoalService, userRepo repository.UserRepository) RankHandler {
+func NewRankHandler(recordSvc RecordService, goalSvc GoalService, userRepo UserRepository) RankHandler {
 	return RankHandler{recordSvc: recordSvc, goalSvc: goalSvc, userRepo: userRepo}
 }
 func (h RankHandler) Rankings(c *gin.Context) {

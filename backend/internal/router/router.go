@@ -27,7 +27,7 @@ func New(db *gorm.DB, logger *zap.Logger, cfg config.Config) *gin.Engine {
 	records := handler.NewRecordHandler(recordSvc)
 	stats := handler.NewStatsHandler(recordSvc)
 	rank := handler.NewRankHandler(recordSvc, goalSvc, userRepo)
-	goals := handler.NewGoalHandler(goalSvc, recordSvc, goalRepo)
+	goals := handler.NewGoalHandler(goalSvc, recordSvc)
 	webhooks := handler.NewWebhookHandler(recordSvc)
 	app.GET("/health", func(c *gin.Context) { c.JSON(http.StatusOK, gin.H{"status": "ok"}) })
 	app.POST("/api/v1/login", handler.Login(cfg))
