@@ -5,6 +5,7 @@ import (
 	"fitnessapi/internal/repository"
 	"fitnessapi/internal/service"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -35,15 +36,30 @@ func (h GoalHandler) Save(c *gin.Context) {
 	c.JSON(http.StatusCreated, goal)
 }
 func (h GoalHandler) Progress(c *gin.Context) {
-	goal, err := h.goalRepo.Latest(1)
+	userID, _ := strconv.Atoi(c.DefaultQuery("user_id", "1"))
+	goal, err := h.goalSvc.Latest(uint(userID))
 	if err != nil {
 		c.Error(err)
 		return
 	}
-	records, err := h.recordSvc.List(goal.UserID, nil, nil)
+	records, err := h.recordSvc.List(uint(userID), nil, nil)
 	if err != nil {
 		c.Error(err)
 		return
 	}
-	c.JSON(http.StatusOK, service.GoalProgress(goal, service.BuildSummary(records)))
+	summary := service.BuildSummary(records)
+	progress := service.GoalProgress(goal, summary)
+
+	allGoals, err := h.goalSvc.List(uint(userID))
+	if err != nil {
+		c.Error(err)
+		return
+	}
+	streak := service.BuildWeeklyStreak(allGoals, records, time.Now(), 4)
+
+	c.JSON(http.StatusOK, gin.H{
+		"goal":     goal,
+		"progress": progress,
+		"streak":   streak,
+	})
 }

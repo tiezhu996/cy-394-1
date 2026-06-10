@@ -15,6 +15,10 @@ func (r GoalRepository) Latest(userID uint) (model.Goal, error) {
 	var goal model.Goal
 	return goal, r.db.Where("user_id = ?", userID).Order("effective_monday desc").First(&goal).Error
 }
+func (r GoalRepository) List(userID uint) ([]model.Goal, error) {
+	var goals []model.Goal
+	return goals, r.db.Where("user_id = ?", userID).Order("effective_monday asc").Find(&goals).Error
+}
 func WeekStart(t time.Time) time.Time {
 	day := int(t.Weekday()+6) % 7
 	return time.Date(t.Year(), t.Month(), t.Day()-day, 0, 0, 0, 0, t.Location())
